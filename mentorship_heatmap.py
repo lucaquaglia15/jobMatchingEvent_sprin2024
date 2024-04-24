@@ -15,8 +15,11 @@ debug = False
 recruiters = ["Manjarres","Roloff","Kortner","Williams","Balli","Corpe","Roloff","Williams","Evans","Manjarres","Kortner","Mijovic","Sofonov","Stupak","Haas","Mijovic","Sofonov","Haas","Whiteson","Evans","Corpe","Balli","Orimoto","Stupak","Orimoto"]
 times = ["09:00-10:00","09:00-10:00","10:00-11:00","10:00-11:00","11:00-12:00","11:00-12:00","12:00-13:00","12:00-13:00","14:00-15:00","14:00-15:00","14:00-15:00","15:00-15:55","15:00-16:00","15:00-16:00","15:30-16:30","16:00-17:00","16:05-17:05","16:35-17:35","17:00-18:00","17:00-18:00","17:00-18:00","18:00-19:00","18:00-18:55","19:00-20:00","19:00-20:00"]
 
-#list of zoom links, to be modified with final ones
+#list of zoom links, to be modified with final ones, to be modified according to the actual number of sessions
 zoomLinks = ["test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test"]
+
+#list to keep track of total participants to a given session, to be modified according to the actual number of sessions
+totParticipants = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
 #open the list of people as pandas df
 jobMatching = pd.read_csv("registrations_jobMatching_2023.csv")
@@ -76,6 +79,8 @@ with open('participantView.csv', 'w', newline='') as file:
             if studentSession.find(recruiters[j]) != -1 and studentSession.find(times[j]) != -1:
                 #if yes -> put a 1 in the participating list  
                 participating.append(1)
+                #increase by 1 the number of participants to the session
+                totParticipants[j] += 1
             else:
                 #if no append a 0
                 participating.append(0)
@@ -87,8 +92,13 @@ with open('participantView.csv', 'w', newline='') as file:
         #clear list for next iteration       
         participating.clear()
 
-    #Add empty space as first element of zoom sessions list
-    zoomLinks.insert(0,"")
+    #Add name of tot participants list
+    totParticipants.insert(0,"Tot participants to session")
+    #write total number of participants to each session
+    writer.writerow(totParticipants)
+
+    #Add name of the zoom sessions list
+    zoomLinks.insert(0,"Zoom links")
     #write zoom links for each session
     writer.writerow(zoomLinks)
     
