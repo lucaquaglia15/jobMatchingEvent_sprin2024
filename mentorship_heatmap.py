@@ -5,6 +5,53 @@ import matplotlib.pyplot as plt
 import csv
 import os
 import copy
+import requests
+from bs4 import BeautifulSoup
+
+# Function to retrieve Zoom meeting info from CERN INDICO website
+def retrieve_zoom_info(username, password, page_url):
+    session = requests.Session()
+
+    # Login
+    login_data = {"username": username, "password": password}
+    session.post(login_url, data=login_data)
+
+    # Request the page after login
+    response = session.get(page_url)
+
+    # Parse HTML
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Find all elements containing Zoom links
+    zoom_meetings = soup.find_all("div", class_="event-service-row")
+
+    # Prepare data
+    zoom_info = {}
+    zoom_links = []
+    zoom_meetingid = []
+    zoom_passcode = []
+    for meeting in zoom_meetings:
+        event_name = meeting.find("span", class_="event-service-title").text.strip()
+        meeting_id = meeting.find("dt", text="Zoom Meeting ID").find_next_sibling("dd").text.strip()
+        passcode = meeting.find("dt", text="Passcode").find_next_sibling("dd").text.strip()
+        zoom_url = meeting.find("input", type="text")["value"]
+        zoom_info[event_name] = {"Meeting ID": meeting_id, "Passcode": passcode, "Zoom URL": zoom_url}
+        zoom_links.append(zoom_url)
+        zoom_meetingid.append(meeting_id)
+        zoom_passcode.append(passcode)
+
+    return zoom_meetingid, zoom_links, zoom_passcode
+
+# Credentials
+username = ""
+password = ""
+
+# URLs
+login_url = "https://auth.cern.ch/auth/realms/cern/login-actions/authenticate?execution=133f73d5-6454-4197-b529-b109a5d9432c&client_id=indico-cern&tab_id=tgmlNdWhv-o"
+page_url = "https://indico.cern.ch/event/1391268/videoconference/"
+
+# Retrieve Zoom meeting info and links
+zoom_meetingid, zoom_links, zoom_passcode = retrieve_zoom_info(username, password, page_url)
 
 #Download file from Indico filtering only with name, e-mail address and job offer session (relevant info only)
 
@@ -14,9 +61,6 @@ debug = False
 #list of recruiters and time of their session
 recruiters = ["Manjarres","Roloff","Kortner","Williams","Balli","Corpe","Roloff","Williams","Evans","Manjarres","Kortner","Mijovic","Sofonov","Stupak","Haas","Mijovic","Sofonov","Haas","Whiteson","Evans","Corpe","Balli","Orimoto","Stupak","Orimoto"]
 times = ["09:00-10:00","09:00-10:00","10:00-11:00","10:00-11:00","11:00-12:00","11:00-12:00","12:00-13:00","12:00-13:00","14:00-15:00","14:00-15:00","14:00-15:00","15:00-15:55","15:00-16:00","15:00-16:00","15:30-16:30","16:00-17:00","16:05-17:05","16:35-17:35","17:00-18:00","17:00-18:00","17:00-18:00","18:00-19:00","18:00-18:55","19:00-20:00","19:00-20:00"]
-
-#list of zoom links, to be modified with final ones, to be modified according to the actual number of sessions
-zoomLinks = ["test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test","test"]
 
 #list to keep track of total participants to a given session, to be modified according to the actual number of sessions
 totParticipants = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -98,10 +142,20 @@ with open('participantView.csv', 'w', newline='') as file:
     writer.writerow(totParticipants)
 
     #Add name of the zoom sessions list
-    zoomLinks.insert(0,"Zoom links")
+    zoom_meetingid.insert(0,"Zoom Meeting ID")
     #write zoom links for each session
-    writer.writerow(zoomLinks)
+    writer.writerow(zoom_meetingid)
     
-
+    #Add name of the zoom sessions list
+    zoom_passcode.insert(0,"Zoom Passcode")
+    #write zoom links for each session
+    writer.writerow(zoom_passcode)
+    
+    #Add name of the zoom sessions list
+    zoom_links.insert(0,"Zoom Links")
+    #write zoom links for each session
+    writer.writerow(zoom_links)
+    
+    
 
 
