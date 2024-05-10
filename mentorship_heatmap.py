@@ -7,6 +7,7 @@ import os
 import copy
 import requests
 from bs4 import BeautifulSoup
+import math 
 
 # Function to retrieve Zoom meeting info from CERN INDICO website
 def retrieve_zoom_info(username, password, page_url):
@@ -48,31 +49,45 @@ password = ""
 
 # URLs
 login_url = "https://auth.cern.ch/auth/realms/cern/login-actions/authenticate?execution=133f73d5-6454-4197-b529-b109a5d9432c&client_id=indico-cern&tab_id=tgmlNdWhv-o"
+#2023
+#page_url = "https://indico.cern.ch/event/1391268/videoconference/"
+#2024
 page_url = "https://indico.cern.ch/event/1391268/videoconference/"
 
 # Retrieve Zoom meeting info and links
 zoom_meetingid, zoom_links, zoom_passcode = retrieve_zoom_info(username, password, page_url)
 
-#Download file from Indico filtering only with name, e-mail address and job offer session (relevant info only)
-
 #If true, debug printouts are enabled
 debug = False
 
 #list of recruiters and time of their session
+#2023
+"""
 recruiters = ["Manjarres","Roloff","Kortner","Williams","Balli","Corpe","Roloff","Williams","Evans","Manjarres","Kortner","Mijovic","Sofonov","Stupak","Haas","Mijovic","Sofonov","Haas","Whiteson","Evans","Corpe","Balli","Orimoto","Stupak","Orimoto"]
 times = ["09:00-10:00","09:00-10:00","10:00-11:00","10:00-11:00","11:00-12:00","11:00-12:00","12:00-13:00","12:00-13:00","14:00-15:00","14:00-15:00","14:00-15:00","15:00-15:55","15:00-16:00","15:00-16:00","15:30-16:30","16:00-17:00","16:05-17:05","16:35-17:35","17:00-18:00","17:00-18:00","17:00-18:00","18:00-19:00","18:00-18:55","19:00-20:00","19:00-20:00"]
+"""
+#2024
+recruiters = ["Boonekamp","Shu Li","Spousta","William Kenzie","Mengqing Wu","D'Eramo","Sculac","Boonekamp","Gameiro Munhoz","Muskinja","Spousta","Gouskos","Arguin","D'Eramo","Shu Li","Simon","Gameiro Munhoz","Muskinja","Porteboeuf"]
+times = ["09:00-09:55","09:00-09:55","10:00-10:55","11:00-11:55","11:00-11:55","12:00-12:55","12:00-12:55","14:00-14:55","14:00-14:55","15:00-15:55","15:00-15:55","15:00-15:55","16:00-16:55","16:00-16:55","16:00-16:55","16:00-16:55","17:00-17:55","17:00-17:55","17:00-17:55"]
 
-#list to keep track of total participants to a given session, to be modified according to the actual number of sessions
-totParticipants = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+
+#list to keep track of total participants to a given session, initialized to 0's according to how many sessions are foreseen
+totParticipants = []
+for i in range(len(recruiters)):
+    totParticipants.append(0)
 
 #open the list of people as pandas df
-jobMatching = pd.read_csv("registrations_jobMatching_2023.csv")
+#jobMatching = pd.read_csv("registrations_jobMatching_2023.csv")
+jobMatching = pd.read_csv("registrations2024.csv")
+
+#Filter the df if there are empty "cells" (for example if a cell is empty it's read as NaN and it messes up the code later on)
+jobMatchingFiltered = jobMatching.dropna()
 
 jobOfferSessionParticipation = []
 
 #Participant names and sessions as a list, extracted from the df 
-participants = jobMatching.loc[:,"Name"].tolist()
-sessions = jobMatching.loc[:,"Job Offer Sessions"].tolist()
+participants = jobMatchingFiltered.loc[:,"Name"].tolist()
+sessions = jobMatchingFiltered.loc[:,"Job Offer Sessions"].tolist()
 
 #Some participants had not indicated their sessions and it said this phrase: To be updated by Oct 17th once recruiter list is finalized, please check back then to update your registration. :)
 #So I remove it and I also remove the name of the participants associated with it
@@ -104,14 +119,14 @@ if debug:
     print (len(jobOfferSessionParticipation),len(participants))
 
 #remove .csv output file if it exists already
-if os.path.exists('participantView.csv'):
+if os.path.exists('participantView2024.csv'):
     print("Removing old file")
-    os.remove('participantView.csv')
+    os.remove('participantView2024.csv')
 else:
     print("File does not exist, moving on")
 
 #Here we write the actual output file
-with open('participantView.csv', 'w', newline='') as file:
+with open('participantView2024.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     
     #This writes the first line (surname of job recruiter and time slot)
@@ -143,6 +158,7 @@ with open('participantView.csv', 'w', newline='') as file:
 
     #Add name of the zoom sessions list
     zoom_meetingid.insert(0,"Zoom Meeting ID")
+    print("ID",zoom_meetingid)
     #write zoom links for each session
     writer.writerow(zoom_meetingid)
     
