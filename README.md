@@ -2,9 +2,9 @@ Python script to produce a csv file "participantsView.csv" starting from registr
 
 #### How to get the input .csv file
 
-0) [This](https://indico.cern.ch/event/1322376/manage/registration/97732/registrations/?config=d672b2bc-f208-473f-b04c-a1d7496a1551) is a direct link to ge the list with the proper filters already applied but in case you would like to customize the list you can follow these steps:
+0) [This](https://indico.cern.ch/event/1391268/manage/registration/103748/registrations/?config=b82f9f8a-5093-46c1-badd-c92020a8873c) is a direct link to ge the list with the proper filters already applied but in case you would like to customize the list you can follow these steps:
 
-1) Go to Indico (for the moment it's the 2023 [Job Matching Event](https://indico.cern.ch/event/1322376/))
+1) Go to the Indico page of the 2024 [Job Matching Event - spring edition](https://indico.cern.ch/event/1391268/overview))
 
 2) Switch to the management area of the event
 
@@ -21,5 +21,7 @@ Python script to produce a csv file "participantsView.csv" starting from registr
 1) Download the input csv file and place it in the same folder as the python script
 
 2) Execute: python3 mentorship_heatmap.py
+
+3) The script will create the participantsView2024.csv file in the same folder and you can use that to mark the people as present or absent during your sessions
 
 
