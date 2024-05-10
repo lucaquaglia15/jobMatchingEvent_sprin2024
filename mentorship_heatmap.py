@@ -31,17 +31,19 @@ def retrieve_zoom_info(username, password, page_url):
     zoom_links = []
     zoom_meetingid = []
     zoom_passcode = []
+    zoom_event_name = []
     for meeting in zoom_meetings:
         event_name = meeting.find("span", class_="event-service-title").text.strip()
         meeting_id = meeting.find("dt", text="Zoom Meeting ID").find_next_sibling("dd").text.strip()
         passcode = meeting.find("dt", text="Passcode").find_next_sibling("dd").text.strip()
         zoom_url = meeting.find("input", type="text")["value"]
         zoom_info[event_name] = {"Meeting ID": meeting_id, "Passcode": passcode, "Zoom URL": zoom_url}
+        zoom_event_name.append(event_name)
         zoom_links.append(zoom_url)
         zoom_meetingid.append(meeting_id)
         zoom_passcode.append(passcode)
 
-    return zoom_meetingid, zoom_links, zoom_passcode
+    return zoom_event_name, zoom_meetingid, zoom_links, zoom_passcode
 
 # Credentials
 username = ""
@@ -55,7 +57,7 @@ login_url = "https://auth.cern.ch/auth/realms/cern/login-actions/authenticate?ex
 page_url = "https://indico.cern.ch/event/1391268/videoconference/"
 
 # Retrieve Zoom meeting info and links
-zoom_meetingid, zoom_links, zoom_passcode = retrieve_zoom_info(username, password, page_url)
+zoom_event_name, zoom_meetingid, zoom_links, zoom_passcode = retrieve_zoom_info(username, password, page_url)
 
 #If true, debug printouts are enabled
 debug = False
@@ -67,7 +69,7 @@ recruiters = ["Manjarres","Roloff","Kortner","Williams","Balli","Corpe","Roloff"
 times = ["09:00-10:00","09:00-10:00","10:00-11:00","10:00-11:00","11:00-12:00","11:00-12:00","12:00-13:00","12:00-13:00","14:00-15:00","14:00-15:00","14:00-15:00","15:00-15:55","15:00-16:00","15:00-16:00","15:30-16:30","16:00-17:00","16:05-17:05","16:35-17:35","17:00-18:00","17:00-18:00","17:00-18:00","18:00-19:00","18:00-18:55","19:00-20:00","19:00-20:00"]
 """
 #2024
-recruiters = ["Boonekamp","Shu Li","Spousta","William Kenzie","Mengqing Wu","D'Eramo","Sculac","Boonekamp","Gameiro Munhoz","Muskinja","Spousta","Gouskos","Arguin","D'Eramo","Shu Li","Simon","Gameiro Munhoz","Muskinja","Porteboeuf"]
+recruiters = ["Boonekamp","Shu Li","Spousta","Kenzie","Mengqing Wu","D'Eramo","Sculac","Boonekamp","Munhoz","Muskinja","Spousta","Gouskos","Arguin","D'Eramo","Shu Li","Simon","Munhoz","Muskinja","Porteboeuf"]
 times = ["09:00-09:55","09:00-09:55","10:00-10:55","11:00-11:55","11:00-11:55","12:00-12:55","12:00-12:55","14:00-14:55","14:00-14:55","15:00-15:55","15:00-15:55","15:00-15:55","16:00-16:55","16:00-16:55","16:00-16:55","16:00-16:55","17:00-17:55","17:00-17:55","17:00-17:55"]
 
 
@@ -118,6 +120,21 @@ participating = []
 if debug:
     print (len(jobOfferSessionParticipation),len(participants))
 
+#Manipulate zoom links and passwords according to the specific session
+ordered_zoom_event_id = []
+ordered_zoom_password = []
+ordered_zoom_link = []
+
+for r,recruiter in enumerate(recruiters):
+    for e,event in enumerate(zoom_event_name):
+        if event.find(recruiter) != -1:
+            ordered_zoom_event_id.append(zoom_meetingid[e])
+            ordered_zoom_password.append(zoom_passcode[e])
+            ordered_zoom_link.append(zoom_links[e])
+            break
+
+print(ordered_zoom_event_id)
+
 #remove .csv output file if it exists already
 if os.path.exists('participantView2024.csv'):
     print("Removing old file")
@@ -157,20 +174,19 @@ with open('participantView2024.csv', 'w', newline='') as file:
     writer.writerow(totParticipants)
 
     #Add name of the zoom sessions list
-    zoom_meetingid.insert(0,"Zoom Meeting ID")
-    print("ID",zoom_meetingid)
+    ordered_zoom_event_id.insert(0,"Zoom Meeting ID")
     #write zoom links for each session
-    writer.writerow(zoom_meetingid)
+    writer.writerow(ordered_zoom_event_id)
     
     #Add name of the zoom sessions list
-    zoom_passcode.insert(0,"Zoom Passcode")
+    ordered_zoom_password.insert(0,"Zoom Passcode")
     #write zoom links for each session
-    writer.writerow(zoom_passcode)
+    writer.writerow(ordered_zoom_password)
     
     #Add name of the zoom sessions list
-    zoom_links.insert(0,"Zoom Links")
+    ordered_zoom_link.insert(0,"Zoom Links")
     #write zoom links for each session
-    writer.writerow(zoom_links)
+    writer.writerow(ordered_zoom_link)
     
     
 
