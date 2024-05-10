@@ -7,7 +7,12 @@ import os
 import copy
 import requests
 from bs4 import BeautifulSoup
-import math 
+import openpyxl
+from openpyxl.styles import PatternFill
+from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment
+from openpyxl.styles.borders import Border, Side
 
 # Function to retrieve Zoom meeting info from CERN INDICO website
 def retrieve_zoom_info(username, password, page_url):
@@ -113,6 +118,8 @@ for i in sessions:
 #merge names of recruiters and time of the session to use a title of the columns
 mergedTimeRecruiters = [m + " " + str(n) for m,n in zip(recruiters,times)]
 mergedTimeRecruiters.insert(0,"Name")
+mergedTimeRecruiters.insert(1,"NOTES")
+mergedTimeRecruiters.append("Total sessions")
 
 #list of 0s and 1s for all sessions, one list per participant (if == 1 student is participating to the session, if 0 no)
 participating = []
@@ -160,9 +167,14 @@ with open('participantView2024.csv', 'w', newline='') as file:
             else:
                 #if no append a 0
                 participating.append(0)
-       
+
+        totSessionPerParticipant = 0
+        totSessionPerParticipant = sum(participating)
+
         #Once the loop is over add the name of the student as the frist element of the participating list
         participating.insert(0,participants[i])
+        participating.insert(1,"")
+        participating.append(totSessionPerParticipant)
         #write to the .csv file
         writer.writerow(participating)
         #clear list for next iteration       
@@ -170,24 +182,129 @@ with open('participantView2024.csv', 'w', newline='') as file:
 
     #Add name of tot participants list
     totParticipants.insert(0,"Tot participants to session")
+    totParticipants.insert(1,"")
     #write total number of participants to each session
     writer.writerow(totParticipants)
 
     #Add name of the zoom sessions list
     ordered_zoom_event_id.insert(0,"Zoom Meeting ID")
+    ordered_zoom_event_id.insert(1,"")
     #write zoom links for each session
     writer.writerow(ordered_zoom_event_id)
     
     #Add name of the zoom sessions list
     ordered_zoom_password.insert(0,"Zoom Passcode")
+    ordered_zoom_password.insert(1,"")
     #write zoom links for each session
     writer.writerow(ordered_zoom_password)
     
     #Add name of the zoom sessions list
     ordered_zoom_link.insert(0,"Zoom Links")
+    ordered_zoom_link.insert(1,"")
     #write zoom links for each session
     writer.writerow(ordered_zoom_link)
-    
-    
+
+    moderator1 = ["Moderator 1"]
+    writer.writerow(moderator1)
+
+    moderator2 = ["Moderator 2 and shadows"]
+    writer.writerow(moderator2)
+
+    notes = ["Comments"]
+    writer.writerow(notes)
+
+    legend = ["Legend","Attended","Did not attend"]
+    writer.writerow(legend)
+
+partView2024 = pd.read_csv("participantView2024.csv")
+
+#remove .xlsx output file if it exists already
+if os.path.exists('participantView2024.xlsx'):
+    print("Removing old file")
+    os.remove('participantView2024.xlsx')
+else:
+    print("File does not exist, moving on")
+
+partView2024.to_excel('participantView2024.xlsx', sheet_name='sheet1', index=False)
+
+"""
+Fancy-up the file
+"""
+#Open excel version of the file
+wb = openpyxl.load_workbook("participantView2024.xlsx")
+ws = wb['sheet1']
+
+#Background color of cells
+clr_background_first_line = PatternFill(start_color='00FFFF00', end_color='00FFFF00', fill_type="solid") #yellow blue for recruiters and job seekers
+clr_background_names = PatternFill(start_color='0099CCFF', end_color='0099CCFF', fill_type="solid") #light blue for recruiters and job seekers
+clr_background_white = PatternFill(start_color='00FFFFFF', end_color='00FFFFFF', fill_type="solid") #white
+clr_background_yellow_light = PatternFill(start_color='00FFFF99', end_color='00FFFF99', fill_type="solid") #light yellow
+clr_background_red = PatternFill(start_color='00FF0000', end_color='00FF0000', fill_type="solid") #red
+clr_background_green = PatternFill(start_color='0000FF00', end_color='0000FF00', fill_type="solid") #green
+clr_background_light_gray = PatternFill(start_color='00C0C0C0', end_color='00C0C0C0', fill_type="solid") #light grey
 
 
+#cell border style
+border = Border(left=Side(style='thin'), 
+                right=Side(style='thin'), 
+                top=Side(style='thin'), 
+                bottom=Side(style='thin'))
+
+#lock first column and row
+ws.freeze_panes = 'B2'
+
+#make the cells "zoom meeting ID", "Zoom Passcode" and "Zoom Links"
+for row in ws.iter_rows():
+    for cell in row:
+
+        cell.alignment = Alignment(horizontal='center', vertical='center') #Center content of all cells
+        cell.border = border #thick cell border
+
+        if cell.column == 1: #make content of first column bold
+            cell.font = Font(b = True) 
+            cell.fill = clr_background_names
+
+        if cell.row == 1:
+            cell.fill = clr_background_first_line #color the cells in the first row
+
+        #zoom links as hyperlinks to take up less space
+        #try is used because if the cell is empty an error is thrown
+        try:
+            if cell.value.find("https://cern.zoom.us") != -1:
+                cell.hyperlink = cell.value
+                cell.value = 'link'
+                cell.style = "Hyperlink"
+                #reformat
+                cell.alignment = Alignment(horizontal='center', vertical='center') #Center content of all cells
+                cell.border = border #thick cell border
+
+        except:
+            pass
+
+        if cell.value == "Tot participants to session":
+            cell.font = Font(b = True)  #make cell content bold
+            cell.fill = clr_background_green #green background color
+        
+        elif cell.value == "Zoom Meeting ID" or cell.value == "Zoom Passcode" or cell.value == "Zoom Links":
+            cell.font = Font(b = True) #make cell content bold
+            cell.fill = clr_background_light_gray #light gray background color
+        
+        elif cell.value == "Notes":
+            cell.fill = clr_background_yellow_light #light yellow background color
+
+        elif cell.value == "Legend":
+            cell.fill = clr_background_white #white background color
+
+        elif cell.value == "Attended":
+            cell.fill = clr_background_green #green background color
+
+        elif cell.value == "Did not attend":
+            cell.fill = clr_background_red #red background color
+
+for col in ws.iter_cols():
+    name = get_column_letter(col[0].column)
+    new_col_length = max(len(str(cell.value)) for cell in col)
+    ws.column_dimensions[name].width = 30 # Enlarge all columns
+
+#Save file to apply changes
+wb.save(filename="participantView2024.xlsx")
