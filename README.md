@@ -1,5 +1,13 @@
 Python script to produce a csv file "participantsView.csv" starting from registrations on Indico
 
+The script will now also produced a .xlsx file with a bit nicer format (i.e. bold text, background colors, fixed rows and columns for easy scrolling). To use the code you need to install the **openpyxl Python library** with the following command:
+
+```
+pip install openpyxl
+```
+
+which will install all the required dependencies
+
 #### How to get the input .csv file
 
 0) [This](https://indico.cern.ch/event/1391268/manage/registration/103748/registrations/?config=b82f9f8a-5093-46c1-badd-c92020a8873c) is a direct link to ge the list with the proper filters already applied but in case you would like to customize the list you can follow these steps:
