@@ -253,28 +253,28 @@ border = Border(left=Side(style='thin'),
 #lock first column and row
 ws.freeze_panes = 'B2'
 
-#make the cells "zoom meeting ID", "Zoom Passcode" and "Zoom Links"
+#Go through all the cells and apply style changes
 for row in ws.iter_rows():
     for cell in row:
 
         cell.alignment = Alignment(horizontal='center', vertical='center') #Center content of all cells
-        cell.border = border #thick cell border
+        cell.border = border #thin cell border
 
-        if cell.column == 1: #make content of first column bold
-            cell.font = Font(b = True) 
-            cell.fill = clr_background_names
+        if cell.column == 1: #change content of first column (name of participants)
+            cell.font = Font(b = True) #bold 
+            cell.fill = clr_background_names #bckg color light blue 
 
         if cell.row == 1:
             cell.fill = clr_background_first_line #color the cells in the first row
 
         #zoom links as hyperlinks to take up less space
-        #try is used because if the cell is empty an error is thrown
+        #try/except is used because if the cell is empty an error is thrown
         try:
-            if cell.value.find("https://cern.zoom.us") != -1:
+            if cell.value.find("https://cern.zoom.us") != -1: #if the cell contains the link -> it means it's a zoom link
                 cell.hyperlink = cell.value
                 cell.value = 'link'
                 cell.style = "Hyperlink"
-                #reformat
+                #reformat after changing text
                 cell.alignment = Alignment(horizontal='center', vertical='center') #Center content of all cells
                 cell.border = border #thick cell border
 
@@ -301,10 +301,21 @@ for row in ws.iter_rows():
         elif cell.value == "Did not attend":
             cell.fill = clr_background_red #red background color
 
+        elif cell.value == "Comments": #enlarge cell for comments
+            nameRow = cell.row
+            ws.row_dimensions[nameRow].height = 250
+
 for col in ws.iter_cols():
-    name = get_column_letter(col[0].column)
+    nameColumn = get_column_letter(col[0].column)
     new_col_length = max(len(str(cell.value)) for cell in col)
-    ws.column_dimensions[name].width = 30 # Enlarge all columns
+    ws.column_dimensions[nameColumn].width = 30 # Enlarge all columns
 
 #Save file to apply changes
 wb.save(filename="participantView2024.xlsx")
+
+#Remove .csv file
+if os.path.exists('participantView2024.csv'):
+    print("Removing .csv file")
+    os.remove('participantView2024.csv')
+else:
+    print("File does not exist, please check")
