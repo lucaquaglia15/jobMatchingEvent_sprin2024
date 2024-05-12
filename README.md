@@ -26,7 +26,7 @@ which will install all the required dependencies
 
 #### How to launch the script
 
-1) Download the input csv file and place it in the same folder as the python script (**the file registration.csv is the 2024 version of the registration form**)
+1) Download the input csv file and place it in the same folder as the python script (**the file registration.csv is the 2024 version of the registration form**). Please note that the the input file contains some rows marked as "Empty", that's because the interested person has not yet provided their desired slots
 
 2) Execute the following:
 
