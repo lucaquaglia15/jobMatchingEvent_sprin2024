@@ -28,7 +28,11 @@ which will install all the required dependencies
 
 1) Download the input csv file and place it in the same folder as the python script
 
-2) Execute: python3 mentorship_heatmap.py
+2) Execute the following:
+
+```
+python3 mentorship_heatmap.py
+```
 
 3) The script will create the participantsView2024.xlsx file in the same folder and you can use that to mark the people as present or absent during your sessions (please note that the code also produces a temporary .csv file, which is deleted at the end of the exectuion, leaving only the .xlsx file)
 
