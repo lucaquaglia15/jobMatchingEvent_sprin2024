@@ -76,7 +76,8 @@ times = ["09:00-10:00","09:00-10:00","10:00-11:00","10:00-11:00","11:00-12:00","
 #2024
 recruiters = ["Boonekamp","Shu Li","Spousta","Kenzie","Mengqing Wu","D'Eramo","Sculac","Boonekamp","Munhoz","Muskinja","Spousta","Gouskos","Arguin","D'Eramo","Shu Li","Simon","Munhoz","Muskinja","Porteboeuf"]
 times = ["09:00-09:55","09:00-09:55","10:00-10:55","11:00-11:55","11:00-11:55","12:00-12:55","12:00-12:55","14:00-14:55","14:00-14:55","15:00-15:55","15:00-15:55","15:00-15:55","16:00-16:55","16:00-16:55","16:00-16:55","16:00-16:55","17:00-17:55","17:00-17:55","17:00-17:55"]
-
+moderator1 = ["Bruno","Antra","Katie","Emery","Oliwia","Antra","Bruno","Irene","Antra","Lorenzo","Hannah","","Lorenzo","Hannah","Brunella","Lourdes","Bruno","Brunella","Lourdes"]
+moderator2 = ["Irene","Luca","Maximilian","Trisha","","Katie","Valentina","Maximilan","Oliwia","Valentina","Patin","","Trisha","Magdy","Oliwia","","Lorenzo","Patin",""]
 
 #list to keep track of total participants to a given session, initialized to 0's according to how many sessions are foreseen
 totParticipants = []
@@ -106,8 +107,6 @@ for i,j in enumerate(participants):
 #There is also the case that for some people one of the session is indicated as To be updated [...]
 #I also remove these ones
 for i in sessions:
-    if debug:
-        print("analyzing")
     participantSessions = i.split(";")
     for x in participantSessions:
         if x == ' To be updated by Oct 17th once recruiter list is finalized, please check back then to update your registration. :)' or x == ' A session I want to attend is full.':
@@ -119,7 +118,7 @@ for i in sessions:
 mergedTimeRecruiters = [m + " " + str(n) for m,n in zip(recruiters,times)]
 mergedTimeRecruiters.insert(0,"Name")
 mergedTimeRecruiters.insert(1,"NOTES")
-mergedTimeRecruiters.append("Total sessions")
+mergedTimeRecruiters.append("Total sessions per participant")
 
 #list of 0s and 1s for all sessions, one list per participant (if == 1 student is participating to the session, if 0 no)
 participating = []
@@ -139,8 +138,6 @@ for r,recruiter in enumerate(recruiters):
             ordered_zoom_password.append(zoom_passcode[e])
             ordered_zoom_link.append(zoom_links[e])
             break
-
-print(ordered_zoom_event_id)
 
 #remove .csv output file if it exists already
 if os.path.exists('participantView2024.csv'):
@@ -204,10 +201,12 @@ with open('participantView2024.csv', 'w', newline='') as file:
     #write zoom links for each session
     writer.writerow(ordered_zoom_link)
 
-    moderator1 = ["Moderator 1"]
+    moderator1.insert(0,"Moderator 1")
+    moderator1.insert(1,"")
     writer.writerow(moderator1)
 
-    moderator2 = ["Moderator 2 and shadows"]
+    moderator2.insert(0,"Moderator 2 and shadows")
+    moderator2.insert(1,"")
     writer.writerow(moderator2)
 
     notes = ["Comments"]
@@ -255,6 +254,11 @@ ws.freeze_panes = 'B2'
 
 #Go through all the cells and apply style changes
 for row in ws.iter_rows():
+    
+    if row[0].value == "Moderator 1" or row[0].value == "Moderator 2 and shadows":
+        for cell in row:
+            cell.font = Font(b = True) #bold 
+    
     for cell in row:
 
         cell.alignment = Alignment(horizontal='center', vertical='center') #Center content of all cells
@@ -304,7 +308,8 @@ for row in ws.iter_rows():
         elif cell.value == "Comments": #enlarge cell for comments
             nameRow = cell.row
             ws.row_dimensions[nameRow].height = 250
-
+                        
+#Enlarge all columns to fit nicely
 for col in ws.iter_cols():
     nameColumn = get_column_letter(col[0].column)
     new_col_length = max(len(str(cell.value)) for cell in col)
