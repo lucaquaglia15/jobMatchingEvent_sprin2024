@@ -86,7 +86,7 @@ for i in range(len(recruiters)):
 
 #open the list of people as pandas df
 #jobMatching = pd.read_csv("registrations_jobMatching_2023.csv")
-jobMatching = pd.read_csv("registrations2024.csv")
+jobMatching = pd.read_csv("registrations.csv")
 
 #Filter the df if there are empty "cells" (for example if a cell is empty it's read as NaN and it messes up the code later on)
 jobMatchingFiltered = jobMatching.dropna()
@@ -186,27 +186,32 @@ with open('participantView2024.csv', 'w', newline='') as file:
     #Add name of the zoom sessions list
     ordered_zoom_event_id.insert(0,"Zoom Meeting ID")
     ordered_zoom_event_id.insert(1,"")
+    ordered_zoom_event_id.append("//")
     #write zoom links for each session
     writer.writerow(ordered_zoom_event_id)
     
     #Add name of the zoom sessions list
     ordered_zoom_password.insert(0,"Zoom Passcode")
     ordered_zoom_password.insert(1,"")
+    ordered_zoom_password.append("//")
     #write zoom links for each session
     writer.writerow(ordered_zoom_password)
     
     #Add name of the zoom sessions list
     ordered_zoom_link.insert(0,"Zoom Links")
     ordered_zoom_link.insert(1,"")
+    ordered_zoom_link.append("//")
     #write zoom links for each session
     writer.writerow(ordered_zoom_link)
 
     moderator1.insert(0,"Moderator 1")
     moderator1.insert(1,"")
+    moderator1.append("//")
     writer.writerow(moderator1)
 
     moderator2.insert(0,"Moderator 2 and shadows")
     moderator2.insert(1,"")
+    moderator2.append("//")
     writer.writerow(moderator2)
 
     notes = ["Comments"]
@@ -255,6 +260,7 @@ ws.freeze_panes = 'B2'
 #Go through all the cells and apply style changes
 for row in ws.iter_rows():
     
+    #Bold names of 
     if row[0].value == "Moderator 1" or row[0].value == "Moderator 2 and shadows":
         for cell in row:
             cell.font = Font(b = True) #bold 
