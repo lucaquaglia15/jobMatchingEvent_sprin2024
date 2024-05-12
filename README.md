@@ -10,7 +10,7 @@ which will install all the required dependencies
 
 #### How to get the input .csv file
 
-0) [This](https://indico.cern.ch/event/1391268/manage/registration/103748/registrations/?config=b82f9f8a-5093-46c1-badd-c92020a8873c) is a direct link to ge the list with the proper filters already applied but in case you would like to customize the list you can follow these steps:
+0) [This](https://indico.cern.ch/event/1391268/manage/registration/103748/registrations/?config=b82f9f8a-5093-46c1-badd-c92020a8873c) is a direct link to ge the list with the proper filters already applied (you just have to select all names to be included, then export and select csv format) but in case you would like to customize the list you can follow these steps:
 
 1) Go to the Indico page of the 2024 [Job Matching Event - spring edition](https://indico.cern.ch/event/1391268/overview))
 
