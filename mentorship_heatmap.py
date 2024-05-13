@@ -74,10 +74,10 @@ recruiters = ["Manjarres","Roloff","Kortner","Williams","Balli","Corpe","Roloff"
 times = ["09:00-10:00","09:00-10:00","10:00-11:00","10:00-11:00","11:00-12:00","11:00-12:00","12:00-13:00","12:00-13:00","14:00-15:00","14:00-15:00","14:00-15:00","15:00-15:55","15:00-16:00","15:00-16:00","15:30-16:30","16:00-17:00","16:05-17:05","16:35-17:35","17:00-18:00","17:00-18:00","17:00-18:00","18:00-19:00","18:00-18:55","19:00-20:00","19:00-20:00"]
 """
 #2024
-recruiters = ["Boonekamp","Shu Li","Spousta","Kenzie","Mengqing Wu","D'Eramo","Sculac","Boonekamp","Munhoz","Muskinja","Spousta","Gouskos","Arguin","D'Eramo","Shu Li","Simon","Munhoz","Muskinja","Porteboeuf"]
-times = ["09:00-09:55","09:00-09:55","10:00-10:55","11:00-11:55","11:00-11:55","12:00-12:55","12:00-12:55","14:00-14:55","14:00-14:55","15:00-15:55","15:00-15:55","15:00-15:55","16:00-16:55","16:00-16:55","16:00-16:55","16:00-16:55","17:00-17:55","17:00-17:55","17:00-17:55"]
-moderator1 = ["Bruno","Antra","Katie","Emery","Oliwia","Antra","Bruno","Irene","Antra","Lorenzo","Hannah","","Lorenzo","Hannah","Brunella","Lourdes","Bruno","Brunella","Lourdes"]
-moderator2 = ["Irene","Luca","Maximilian","Trisha","","Katie","Valentina","Maximilan","Oliwia","Valentina","Patin","","Trisha","Magdy","Oliwia","","Lorenzo","Patin",""]
+recruiters = ["Boonekamp","Spousta","Kenzie","Mengqing Wu","D'Eramo","Sculac","Boonekamp","Munhoz","Muskinja","Spousta","Gouskos","Arguin","Arguin","D'Eramo","Shu Li","Simon","Munhoz","Muskinja","Porteboeuf"]
+times = ["09:00-09:55","10:00-10:55","11:00-11:55","11:00-11:55","12:00-12:55","12:00-12:55","14:00-14:55","14:00-14:55","15:00-15:55","15:00-15:55","15:00 - 15:55","15:00-15:55","16:00-16:55","16:00-16:55","16:00-16:55","16:00-16:55","17:00-17:55","17:00-17:55","17:00-17:55"]
+moderator1 = ["Bruno","Maximilian","Emery","Lorenzo","Antra","Bruno","Irene","Antra","Antra","Lorenzo","Patin","Irene","Trisha","Hannah","Oliwia","Bruno","Brunella","Magdy"]
+moderator2 = ["Irene","Irene","Trisha","Oliwia","","Valentina","Maximilan","Oliwia","Luca","Valentina","Hannah","Bruno","Lorenzo","Magdy","Brunella","Patin","Patin","Hannah"]
 
 #list to keep track of total participants to a given session, initialized to 0's according to how many sessions are foreseen
 totParticipants = []
@@ -153,18 +153,24 @@ with open('participantView2024.csv', 'w', newline='') as file:
     #This writes the first line (surname of job recruiter and time slot)
     writer.writerow(mergedTimeRecruiters)
 
-    #This checkes for each job seeker if they have applied for a specific session
     for i,studentSession in enumerate(sessions):
-        for j,recruiter in enumerate(recruiters):              
-            if studentSession.find(recruiters[j]) != -1 and studentSession.find(times[j]) != -1:
-                #if yes -> put a 1 in the participating list  
-                participating.append(1)
-                #increase by 1 the number of participants to the session
-                totParticipants[j] += 1
+        for j,recruiter in enumerate(recruiters):  
+            if (studentSession.lower()).find((recruiters[j].lower())) != -1 and studentSession.find(times[j]) != -1:
+                #check that distance between recruiter name and time is not more than 50 (verified experimentally that all "real" distances are less
+                #than 50 characters)
+                
+                if studentSession.find(times[j]) - (studentSession.lower()).find((recruiters[j].lower())) < 50:
+                    #if yes -> put a 1 in the participating list  
+                    participating.append(1)
+                    #increase by 1 the number of participants to the session
+                    totParticipants[j] += 1
+                else:
+                    #append 0 because it's a "fake" match
+                    participating.append(0)
             else:
                 #if no append a 0
                 participating.append(0)
-
+        
         totSessionPerParticipant = 0
         totSessionPerParticipant = sum(participating)
 
